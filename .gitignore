@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local config
+.env
+.env.*
+
+# Datasets
+/dataset/
+/datasets/
+/data/
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+
+# Training outputs
+runs/
+checkpoints/
+checkoints/
+weights/
+wandb/
+mlruns/
+tensorboard/
+
+# Model weights and exports
+
+# Generated pruning artifacts
+prune_info/
+*.cache
+
+# Generated quantization artifacts (e.g. utils/kurtosis_check.py output)
+*.npy
+
+# Build artifacts
+*.egg-info/
+build/
+dist/
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
