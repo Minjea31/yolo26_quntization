@@ -5,7 +5,7 @@ from pathlib import Path
 import math
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--bmodel', type=str, default='/home/a/yolo26_pruning/best.pt')
+parser.add_argument('--bmodel', type=str, default='../baseline.pt')
 parser.add_argument('--pruning_ratio', type=float, default='0.5') # 몇 %를 자를건지
 parser.add_argument('--prune_type', type=str, default='ALL', help="H or B or ALL")
 parser.add_argument('--method', type=str, default='GM', help="L1 or L2 or GM")
