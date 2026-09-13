@@ -9,6 +9,7 @@ Usage:
 """
 
 import argparse
+import json
 from collections import Counter
 from pathlib import Path
 
@@ -58,6 +59,14 @@ def transform_fn(data_item):
 
 loader = build_calib_loader()
 
+# 속도 우선 전략: model.23(Detect head의 decode/후처리 블록 전체 - Conv +
+# Sigmoid/TopK/GatherElements/Concat 등 146개 노드)만 통째로 FP32로 남기고,
+# backbone/neck(model.0~22)은 Conv/Sigmoid/Mul/Concat 가리지 않고 전부 양자화한다.
+# (Conv만 남기고 나머지 op은 다 빼는 방식은 backbone까지 파편화시켜 오히려 느려짐 - 20절 참고)
+raw_graph_nodes = onnx.load(str(fp32_onnx)).graph.node
+nodes_to_exclude = sorted(n.name for n in raw_graph_nodes if n.name.startswith("/model.23"))
+print(f"quantization에서 제외할 model.23(Detect head 전체) 노드: {len(nodes_to_exclude)}개")
+
 cases = [
     ("QDQ (baseline, 기존 방식, S8/S8)", QuantFormat.QDQ, QuantType.QInt8),
     ("QOperator (S8 activation, x64 비권장)", QuantFormat.QOperator, QuantType.QInt8),
@@ -72,6 +81,7 @@ for fmt_name, fmt, act_type in cases:
         onnx_calibration_reader(loader, transform_fn, batch=0),
         quant_format=fmt,
         activation_type=act_type,
+        nodes_to_exclude=nodes_to_exclude,
     )
     q = onnx.load(str(out_path))
     c = Counter(n.op_type for n in q.graph.node)
